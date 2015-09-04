@@ -46,7 +46,7 @@ x = []
 y = []
 
 #Define Ducttype but not need to be provided by user, it will use undefine
-Pipetype = IN[1]
+Ducttype = IN[1]
 
 #Iterate over list using Konrad K Sobon list to points script
 for xyz in xyzList:
@@ -64,7 +64,7 @@ for i,h in zip(x,y):
 #Convert points to Xyz
     x=i.ToXyz()
     y=h.ToXyz()
-    doc.Create.NewPipe(x, y, Pipetype);
+    doc.Create.NewDuct(x, y, Ducttype);
 # Stop Transaction
 TransactionManager.Instance.TransactionTaskDone()
 
