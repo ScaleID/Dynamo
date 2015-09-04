@@ -1,0 +1,71 @@
+#Scale ID - 2015
+
+import clr
+clr.AddReference('ProtoGeometry')
+from Autodesk.DesignScript.Geometry import *
+
+# Import DocumentManager and TransactionManager
+clr.AddReference('RevitServices')
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+
+# Import RevitAPI
+clr.AddReference('RevitAPI')
+import Autodesk
+# Import Revit Nodes ¿?
+clr.AddReference("RevitNodes")
+import Revit
+# Import from Revit DB
+from Autodesk.Revit.DB import *
+# Import from Revit Creation where is the Create class
+from Autodesk.Revit.Creation import *
+
+clr.ImportExtensions(Revit.GeometryConversion)
+
+#Defining stuff
+doc = DocumentManager.Instance.CurrentDBDocument
+uiapp = DocumentManager.Instance.CurrentUIApplication
+app = uiapp.Application
+pipes= Autodesk.Revit.DB.Plumbing
+
+# Import ToProtoType, ToRevitType geometry conversion extension methods
+clr.ImportExtensions(Revit.GeometryConversion)
+
+#The inputs to this node will be stored as a list in the IN variable.
+dataEnteringNode = IN
+
+#Split single string at line breaks into a list of strings
+xyzList = IN[0].rsplit("\n")
+# Cull the fisrt line, which is header
+del xyzList[0]
+# Cull the last line, which is blank
+del xyzList[len(xyzList)-1]
+#Create empty list for points x and y
+x = []
+y = []
+
+#Define Ducttype but not need to be provided by user, it will use undefine
+Pipetype = IN[1]
+
+#Iterate over list using Konrad K Sobon list to points script
+for xyz in xyzList:
+    tpt = xyz.rsplit(',')
+    #convert first coord to points and to mm, as revit api works with decimal feets you need to divide the float into 304.8 to mantain mm
+    x.append(Autodesk.Revit.DB.XYZ((float(tpt[0])/304.8),(float(tpt[1])/304.8),(float(tpt[2])/304.8)).ToPoint())
+    #convert second coord to points and in to mm
+    y.append(Autodesk.Revit.DB.XYZ((float(tpt[3])/304.8),(float(tpt[4])/304.8),(float(tpt[5])/304.8)).ToPoint())
+#Print x & y points created    
+
+#Create a duct from each couple of x & y points
+# Start Transaction
+TransactionManager.Instance.EnsureInTransaction(doc)
+for i,h in zip(x,y):
+#Convert points to Xyz
+    x=i.ToXyz()
+    y=h.ToXyz()
+    doc.Create.NewPipe(x, y, Pipetype);
+# Stop Transaction
+TransactionManager.Instance.TransactionTaskDone()
+
+OUT = x,y
