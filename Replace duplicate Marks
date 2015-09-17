@@ -1,0 +1,48 @@
+#SCALE ID -VALENTIN NOVES
+import clr
+clr.AddReference('ProtoGeometry')
+from Autodesk.DesignScript.Geometry import *
+from operator import itemgetter 
+
+#The inputs to this node will be stored as a list in the IN variables.
+dataEnteringNode = IN
+
+INITIAL = IN[0]
+#Duplicate item indices
+
+
+a, seen, result, unique = INITIAL, set(), [], []
+for idx, item in enumerate(a):
+    if item not in seen:
+    	seen.add(item)
+    	unique.append(idx)        
+    	# First time seeing the element
+    else:
+    	result.append(idx)
+    	# Already seen, add the index to the result
+
+#Elements get item at index
+
+a = IN[1]
+b = result
+LIST_OF_ELEMENTS = itemgetter(*b)(a)
+
+#Large of the list
+HOW_MANY_ELEMENTS = len(LIST_OF_ELEMENTS)
+
+max_value = max(INITIAL)
+
+BIM = int(max_value)
+
+BAM = BIM + 10000
+
+PARAMETER_NAME = "Mark"
+
+BAT = []
+for i in range(BAM, BAM + HOW_MANY_ELEMENTS, 1):
+	BAT.append(str(i))
+
+
+OUT = BAT, LIST_OF_ELEMENTS, PARAMETER_NAME
+
+
